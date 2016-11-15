@@ -1,5 +1,6 @@
-##
-##
+## Shows the hopital in the specified state that has the specified rank
+## for the specified outcome;
+## ties go to the hospital that comes first alphabetically
 
 rankhospital <- function(state, outcome, num) {
         # read in data
