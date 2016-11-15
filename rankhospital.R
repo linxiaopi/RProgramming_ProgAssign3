@@ -6,7 +6,7 @@ rankhospital <- function(state, outcome, num) {
         data <- read.csv("../assign_3_data/outcome-of-care-measures.csv", 
                          na.strings = "Not Available")
         
-        # check that state and outcome are valid
+        # check that "state" and "outcome" args are valid
         ST <- which(data$State == state)
         if (sum(ST) < 1) {
                 stop("invalid state")
@@ -29,11 +29,24 @@ rankhospital <- function(state, outcome, num) {
         sub <- sub[!is.na(sub[ , outcome]), ]
         sub <- sub[order(sub[ , outcome], sub$Hospital.Name) , ]
         
-        # find lowest 30-day mortality rate and make a vector of the hospitals
-        # with that score
-        low <- min(sub[ , outcome])
-        hospital <- sub[sub[ , outcome] == low, 2]
+        # add "rank" to "sub" data frame
+        sub$rank <- 1:nrow(sub)
         
-        # return hospital name in that state with lowest 30-day death rate
-        as.character(hospital[1])
+        # check that "rank" arg is valid
+        if (!(num == "best" | num == "worst" |
+              (num > 0 & num < nrow(sub)))) {
+                return(NA)
+        }
+                
+        
+        # return hospital name in chosen state with specified rank
+        if (num == "best") {
+                num <- 1
+        }
+                
+        if (num == "worst") {
+                num <- max(sub$rank)
+        }
+                
+        as.character(sub[num,2])
 }

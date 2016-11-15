@@ -24,18 +24,11 @@ best <- function(state, outcome) {
         if (outcome == "pneumonia")
                         outcome <- 23
         
-        # subset to state, remove NAs and alphabetize data
+        # subset to state, remove NAs, sort by outcome and alphabetize data
         sub <- data[data$State == state , ]
         sub <- sub[!is.na(sub[ , outcome]) , ]
-        #sub <- sub[order(sub$Hospital.Name) , ]
         sub <- sub[order(sub[ , outcome], sub$Hospital.Name) , ]
         
-        # find lowest 30-day mortality rate and make a vector of the hospitals
-        # with that score
-        #low <- min(sub[ , outcome])
-        #hospital <- sub[sub[ , outcome] == low, 2]
-        
         # return hospital name in that state with lowest 30-day death rate
-        #as.character(hospital[1])
         as.character(sub[1,2])
 }
