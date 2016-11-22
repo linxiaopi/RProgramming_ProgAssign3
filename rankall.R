@@ -54,6 +54,6 @@ rankall <- function(outcome, num = "best") {
         
         
         # return data frame with hospital of specified rank in each state
-        data.frame(HOSPITAL = unlist(hosp, use.names = FALSE), STATE = names(hosp))
+        data.frame(hospital = unlist(hosp, use.names = FALSE), state = names(hosp))
 
 }
