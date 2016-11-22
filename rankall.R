@@ -2,7 +2,7 @@
 ## for the specified outcome;
 ## ties go to the hospital that comes first alphabetically
 
-rankall <- function(outcome, num) {
+rankall <- function(outcome, num = "best") {
         # read in data
         data <- read.csv("../assign_3_data/outcome-of-care-measures.csv", 
                          na.strings = "Not Available")
@@ -13,6 +13,13 @@ rankall <- function(outcome, num) {
                 stop("invalid outcome")
         }
         
+        
+        # check that "rank" arg is valid
+        if (!(num == "best" | num == "worst" | num > 0)) {
+                stop("invalid num")
+        }
+        
+        
         # assign appropriate column numbers to 'outcome'
         if (outcome == "heart attack")
                 outcome <- 11
@@ -21,30 +28,32 @@ rankall <- function(outcome, num) {
         if (outcome == "pneumonia")
                 outcome <- 23
         
-        # subset to remove NAs, sort by outcome and alphabetize data
+        
+        # subset to remove NAs, order by state and outcome and alphabetize hospitals
         sub <- data[!is.na(data[ , outcome]), ]
-        sub <- sub[order(sub[ , outcome], sub$Hospital.Name) , ]
-
-######### CONTINUE HERE #############
         
-        # add "rank" to "sub" data frame
-        sub$rank <- 1:nrow(sub)
-        
-        # check that "rank" arg is valid
-        if (!(num == "best" | num == "worst" |
-              (num > 0 & num < nrow(sub)))) {
-                return(NA)
-        }
-        
-        
-        # return hospital name in chosen state with specified rank
-        if (num == "best") {
-                num <- 1
-        }
-        
+        # reverse outcome order for num = "worst"
         if (num == "worst") {
-                num <- max(sub$rank)
+                sub <- sub[order(sub$State, -sub[ , outcome], sub$Hospital.Name) , ]
         }
+        else {
+                sub <- sub[order(sub$State, sub[ , outcome], sub$Hospital.Name) , ]
+        }
+                
         
-        as.character(sub[num,2])
+        
+        # subset to required columns; rename columns, add split (by state)
+        sub <- sub[ , c(2, 7, outcome)]
+        names(sub) <- c("hospital","st", "rate")
+        by_state <- split(sub, sub$st)
+        
+
+        # get list of hospitals with rank of "num" 
+        if (num == "best" | num == "worst") num <- 1
+        hosp <- lapply(by_state, function(x) as.character( x[num , 1]) )
+        
+        
+        # return data frame with hospital of specified rank in each state
+        data.frame(HOSPITAL = unlist(hosp, use.names = FALSE), STATE = names(hosp))
+
 }
